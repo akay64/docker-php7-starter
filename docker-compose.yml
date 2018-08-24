@@ -1,0 +1,32 @@
+# This is our production compose file - not changed for docker-sync or similar
+
+version: "3"
+services:
+  web:
+    image: nginx:1.15.2
+    ports:
+      - "${NGINX_PORT_BIND}:80"
+    volumes:
+      - ./app:/var/www/html
+      - ./build-files/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - php
+
+  php:
+    build: 
+      context: .
+      dockerfile: DockerfilePHP7.dockerfile
+    volumes:
+      - ./app:/var/www/html
+    links:
+      - mysql
+    
+  mysql:
+    image: mysql:8.0.12
+    restart: on-failure:3
+    volumes:
+          - ${MYSQL_DB_LOCATION}:/var/lib/mysql
+    ports:
+          - "${MYSQL_PORT_BIND}:3306"
+    env_file:
+          - .env

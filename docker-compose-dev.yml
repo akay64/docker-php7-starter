@@ -1,0 +1,25 @@
+# this is our development docker-compose
+# building on top of the production docker-compose.
+
+version: "3"
+services:
+  web:
+    volumes:
+      - "${SYNC_CONTAINER_NAME}-sync:/var/www/html:nocopy"
+
+  php:
+    build: 
+      context: .
+      dockerfile: DockerfilePHP7Dbg.dockerfile
+    environment:
+      # Only works in docker for Mac, it points to host IP
+      # for other OS use hard coded host IP
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+    volumes:
+      - "${SYNC_CONTAINER_NAME}-sync:/var/www/html:nocopy"
+
+# Load up docker sync volume (Note: Volume name to be
+# hardcoded here due to docker compose limitation)
+volumes:
+  appname_synctype-sync:
+    external: true
